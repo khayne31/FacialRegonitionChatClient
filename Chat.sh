@@ -1,7 +1,3 @@
-hash() {
-	cksum <<< $1 | cut -f 1 -d ' '
-}
-
 while :
 do
 	read -p "What would you like to do 1) login 2) create new user?: " decision
@@ -12,6 +8,8 @@ do
 		if  [ $access == "True" ]
 		then 
 			echo "Access Granted"
+			python GUI2.py --user "Kellen"
+			break
 		else
 			echo "Access Denied"
 		fi
@@ -32,7 +30,14 @@ do
     		read -p "Great You now have access. Would you like to login (y/n)?: " newLogin
     		if [ $newLogin == "y" ]
     		then
-    			python recognize_video_2.py --detector face_detection_model --embedding-model openface_nn4.small2.v1.t7 --recognizer output/recognizer.pickle --le output/le.pickle --access output/access.pickle --seconds 10 --script True
+    			access=$(python recognize_video_2.py --detector face_detection_model --embedding-model openface_nn4.small2.v1.t7 --recognizer output/recognizer.pickle --le output/le.pickle --access output/access.pickle --seconds 10 --script True)
+    			if [ $access == "True" ] 
+    			then
+    				python GUI2.py --user "$name"
+    				break
+    			else
+    				break
+    			fi
     			break
     		elif [ $newLogin == "n" ]
     		then
@@ -58,4 +63,3 @@ for load in $(seq 1 12); do
 	sleep 1
 done
 
-hash Kellen
