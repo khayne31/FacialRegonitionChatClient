@@ -23,7 +23,6 @@ def newMessage(msgID = None):
 	r = requests.get("https://0ym0hvjsll.execute-api.us-east-2.amazonaws.com/default/chat?id="+message_id)
 
 	messages = r.json()["Items"]
-	print(len(messages))
 	if len(messages) > 0:
 		with open("messages.txt", "w") as f:
 			for item in messages:

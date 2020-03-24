@@ -28,7 +28,7 @@ ap.add_argument("-l", "--le", required=True,
 	help="path to label encoder")
 ap.add_argument("-c", "--confidence", type=float, default=0.5,
 	help="minimum probability to filter weak detections")
-ap.add_argument("-a", "--access", required = True,
+ap.add_argument("-u", "--user", required = True,
 	help="path to output of access for file")
 ap.add_argument("-s", "--seconds", type=float, default = 2,
 	help="path to output of access for file")
@@ -159,9 +159,11 @@ if not args["script"]:
     print("[INFO] approx. FPS: {:.2f}".format(fps.fps()))
     print("Access {}, {}!".format("Granted" if access and max_value / total_frames > .1 else "Denied", most_numerous_label.capitalize()))
 print(access)
-f = open(args["access"], "wb")
-f.write(pickle.dumps(access))
-f.close()
+
+if access:
+	f = open(args["user"], "wb")
+	f.write(pickle.dumps(most_numerous_label))
+	f.close()
 
 
 

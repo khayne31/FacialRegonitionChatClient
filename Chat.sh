@@ -1,14 +1,18 @@
+userSave=output/user.pickle
 while :
 do
-	read -p "What would you like to do 1) login 2) create new user?: " decision
+	
+	read -p "What would you like to do 1) login 2) create new user 3) remove user ?: " decision
 	if [ $decision == "1" ]
 	then 
 		echo "Logging In..."
-		access=$(python recognize_video_2.py --detector face_detection_model --embedding-model openface_nn4.small2.v1.t7 --recognizer output/recognizer.pickle --le output/le.pickle --access output/access.pickle --seconds 3 --script True)
+		access=$(python recognize_video_2.py --detector face_detection_model --embedding-model openface_nn4.small2.v1.t7 --recognizer output/recognizer.pickle --le output/le.pickle --user $userSave --seconds 3 --script True)
 		if  [ $access == "True" ]
 		then 
+
 			echo "Access Granted"
-			python GUI2.py --user "Kellen"
+			name=$(python user.py --user $userSave)
+			python GUI2.py --user "$name"
 			break
 		else
 			echo "Access Denied"
@@ -30,7 +34,7 @@ do
     		read -p "Great You now have access. Would you like to login (y/n)?: " newLogin
     		if [ $newLogin == "y" ]
     		then
-    			access=$(python recognize_video_2.py --detector face_detection_model --embedding-model openface_nn4.small2.v1.t7 --recognizer output/recognizer.pickle --le output/le.pickle --access output/access.pickle --seconds 10 --script True)
+    			access=$(python recognize_video_2.py --detector face_detection_model --embedding-model openface_nn4.small2.v1.t7 --recognizer output/recognizer.pickle --le output/le.pickle --user $userSave --seconds 10 --script True)
     			if [ $access == "True" ] 
     			then
     				python GUI2.py --user "$name"
@@ -45,20 +49,32 @@ do
     		fi
     	done
 		break
+	elif [ $decision == "3" ]
+	then
+		
+		read -p "Which user would you like to remove?: " delUser
+
+		rm -r "dataset\\$delUser"  2> errlog.txt
+		python extract_embeddings.py --dataset dataset --embeddings output/embeddings.pickle --detector face_detection_model --embedding-model openface_nn4.small2.v1.t7
+		python train_model.py --embeddings output/embeddings.pickle --recognizer output/recognizer.pickle --le output/le.pickle
+		echo "User $delUser Removed"
+   
+    	break
 	fi
 done
 
-for load in $(seq 1 12); do
+for load in $(seq 1 12); 
+do
 	n=$((load % 4))
 	if [ $n == 0 ]; then 
 		echo -ne "\033[2K"
-		echo -ne "Loading \r"
+		echo -ne "Exiting \r"
 	elif [ $n == 1 ]; then
-		echo -ne "Loading. \r"
+		echo -ne "Exiting. \r"
 	elif [ $n == 2 ]; then
-		echo -ne "Loading.. \r"
+		echo -ne "Exiting.. \r"
 	else
-		echo -ne "Loading...\r"
+		echo -ne "Exiting...\r"
 	fi
 	sleep 1
 done
