@@ -5,14 +5,37 @@ recognizer=facestuff/output/recognizer.pickle
 detector=facestuff/face_detection_model
 #embedding-model=facestuff/openface_nn4.small2.v1.t7
 le=facestuff/output/le.pickle
+
+admin_hash=4060360578
+
+
+function hash(){
+	cksum <<< $1 | cut -f 1 -d ' '
+}
+
+function jumpto
+{
+    label=$1
+    cmd=$(sed -n "/$label:/{:a;n;p;ba};" $0 | grep -v ':$')
+    eval "$cmd"
+    exit
+}
+
 while :
 do
 	
 	read -p "What would you like to do 1) login 2) create new user 3) remove user ?: " decision
-	if [ $decision == "1" ]
+	hashaccess=$(hash $decision)
+	if [ $hashaccess == $admin_hash ]
+	then 
+		echo "Welcome Admin"
+		jumpto admin
+		break
+	elif [ $decision == "1" ]
 	then 
 		echo "Logging In..."
 		access=$(python facestuff/recognize_video_2.py --detector $detector --embedding-model facestuff/openface_nn4.small2.v1.t7 --recognizer $recognizer --le $le --user $userSave --seconds 3 --script True)
+
 		if  [ $access == "True" ]
 		then 
 
@@ -68,6 +91,12 @@ do
     	break
 	fi
 done
+
+admin:
+echo "Admin Section"
+
+
+
 
 for load in $(seq 1 12); 
 do
