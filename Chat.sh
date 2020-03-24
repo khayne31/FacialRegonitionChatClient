@@ -1,4 +1,10 @@
-userSave=output/user.pickle
+userSave=facestuff/output/user.pickle
+dataset=facestuff/dataset
+embeddings=facestuff/output/embeddings.pickle
+recognizer=facestuff/output/recognizer.pickle
+detector=facestuff/face_detection_model
+#embedding-model=facestuff/openface_nn4.small2.v1.t7
+le=facestuff/output/le.pickle
 while :
 do
 	
@@ -6,13 +12,13 @@ do
 	if [ $decision == "1" ]
 	then 
 		echo "Logging In..."
-		access=$(python recognize_video_2.py --detector face_detection_model --embedding-model openface_nn4.small2.v1.t7 --recognizer output/recognizer.pickle --le output/le.pickle --user $userSave --seconds 3 --script True)
+		access=$(python facestuff/recognize_video_2.py --detector $detector --embedding-model facestuff/openface_nn4.small2.v1.t7 --recognizer $recognizer --le $le --user $userSave --seconds 3 --script True)
 		if  [ $access == "True" ]
 		then 
 
 			echo "Access Granted"
-			name=$(python user.py --user $userSave)
-			python GUI2.py --user "$name"
+			name=$(python facestuff/user.py --user $userSave)
+			python chatstuff/GUI2.py --user "$name"
 			break
 		else
 			echo "Access Denied"
@@ -24,20 +30,20 @@ do
 		read -p "What would you like your name to be?: " name
 		echo "Great! When the webcam turns on $name slowly move your head back and forth until scanning is complete."
 		echo "Scanning..."
-		python face_scan.py --folder dataset\\$name --seconds 10
+		python facestuff/face_scan.py --folder facestuff\\dataset\\$name --seconds 10
 		echo  "Processing..."
-		python extract_embeddings.py --dataset dataset --embeddings output/embeddings.pickle --detector face_detection_model --embedding-model openface_nn4.small2.v1.t7
-    	python train_model.py --embeddings output/embeddings.pickle --recognizer output/recognizer.pickle --le output/le.pickle
+		python facestuff/extract_embeddings.py --dataset $dataset --embeddings $embeddings --detector $detector --embedding-model facestuff/openface_nn4.small2.v1.t7
+    	python facestuff/train_model.py --embeddings $embeddings --recognizer $recognizer --le $le
     	
     	while :
     	do
     		read -p "Great You now have access. Would you like to login (y/n)?: " newLogin
     		if [ $newLogin == "y" ]
     		then
-    			access=$(python recognize_video_2.py --detector face_detection_model --embedding-model openface_nn4.small2.v1.t7 --recognizer output/recognizer.pickle --le output/le.pickle --user $userSave --seconds 10 --script True)
+    			access=$(python facestuff/recognize_video_2.py --detector $detector --embedding-model facestuff/openface_nn4.small2.v1.t7 --recognizer $recognizer --le $le --user $userSave --seconds 10 --script True)
     			if [ $access == "True" ] 
     			then
-    				python GUI2.py --user "$name"
+    				python chatstuff/GUI2.py --user "$name"
     				break
     			else
     				break
@@ -55,8 +61,8 @@ do
 		read -p "Which user would you like to remove?: " delUser
 
 		rm -r "dataset\\$delUser"  2> errlog.txt
-		python extract_embeddings.py --dataset dataset --embeddings output/embeddings.pickle --detector face_detection_model --embedding-model openface_nn4.small2.v1.t7
-		python train_model.py --embeddings output/embeddings.pickle --recognizer output/recognizer.pickle --le output/le.pickle
+		python facestuff/extract_embeddings.py --dataset $dataset --embeddings $embeddings --detector $detector --embedding-model facestuff/openface_nn4.small2.v1.t7
+		python facestuff/train_model.py --embeddings $embeddings --recognizer $recognizer --le $le
 		echo "User $delUser Removed"
    
     	break
